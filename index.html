@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 JS Tasks Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #161b5a;
+            padding: 20px;
+        }
+
+        header {
+            background: #110833;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+        }
+
+        .controls {
+            padding: 15px;
+            background: #110833;
+            margin-bottom: 20px;
+            border: 1px solid #e4e0f5;
+        }
+
+        .task-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        label {
+            font-weight: 600;
+            color: white;
+        }
+
+        select, button {
+            padding: 8px 15px;
+            border: 1px solid #667eea;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        select {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .output-area {
+            padding: 15px;
+        }
+
+        .task-info {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .task-info h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .console {
+            background: #1c1c1d;
+            color: #d4d4d4;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .console-line {
+            margin-bottom: 5px;
+        }
+
+        .console-line.error {
+            color: #f48771;
+        }
+
+        .console-line.success {
+            color: #89d185;
+        }
+
+        .console-line.info {
+            color: #6cb6ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge.loops {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .badge.switch {
+            background: #10b981;
+            color: white;
+        }
+
+        .badge.easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge.medium {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge.hard {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>почему зачем</h1>
+        </header>
+        
+        <div class="controls">
+            <div class="task-selector">
+                <label for="taskSelect">Номер задания:</label>
+                <select id="taskSelect"></select>
+                <button onclick="runTask()">Запуск</button>
+                <button onclick="clearConsole()">Очистить</button>
+            </div>
+        </div>
+        
+        <div class="output-area">
+            <div class="task-info" id="taskInfo"></div>
+            <div class="console" id="console">
+                <div class="console-line info">Выбреть задание и нажать на "запуск".</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tasks = [
+            { num: 1, topic: 'loops', difficulty: 'easy', desc: 'Вывести числа от 1 до 10 с помощью for' },
+            { num: 2, topic: 'loops', difficulty: 'easy', desc: 'Вывести числа от 1 до 10 с помощью while' },
+            { num: 3, topic: 'loops', difficulty: 'easy', desc: 'Объяснить разницу do...while и while' },
+            { num: 4, topic: 'loops', difficulty: 'easy', desc: 'do...while для ввода числа до 10' },
+            { num: 5, topic: 'loops', difficulty: 'easy', desc: 'Использовать break при i === 5' },
+            { num: 6, topic: 'loops', difficulty: 'easy', desc: 'Использовать continue для пропуска чётных' },
+            { num: 7, topic: 'loops', difficulty: 'easy', desc: 'Обратный цикл от 10 до 1' },
+            { num: 8, topic: 'loops', difficulty: 'easy', desc: 'Сумма чисел от 1 до 100' },
+            { num: 9, topic: 'loops', difficulty: 'easy', desc: 'Чётные числа от 1 до 20' },
+            { num: 10, topic: 'loops', difficulty: 'easy', desc: 'Бесконечный цикл с break' },
+            { num: 11, topic: 'loops', difficulty: 'easy', desc: 'for...of для массива [10, 20, 30, 40]' },
+            { num: 12, topic: 'loops', difficulty: 'easy', desc: 'for...in для объекта {a:1, b:2, c:3}' },
+            { num: 13, topic: 'loops', difficulty: 'easy', desc: 'Разница for...of и for...in' },
+            { num: 14, topic: 'loops', difficulty: 'easy', desc: 'Подсчёт гласных в "hello world"' },
+            { num: 15, topic: 'loops', difficulty: 'easy', desc: 'Произведение элементов [1,2,3,4,5]' },
+            { num: 16, topic: 'loops', difficulty: 'easy', desc: 'Массив квадратов от 1 до 10' },
+            { num: 17, topic: 'loops', difficulty: 'medium', desc: 'Таблица умножения 1-10' },
+            { num: 18, topic: 'loops', difficulty: 'medium', desc: 'Найти первый элемент > target' },
+            { num: 19, topic: 'loops', difficulty: 'medium', desc: 'FizzBuzz для 1-100' },
+            { num: 20, topic: 'loops', difficulty: 'medium', desc: 'repeat(str, n) без String.repeat' },
+            { num: 21, topic: 'loops', difficulty: 'medium', desc: 'Разворот строки без .reverse' },
+            { num: 22, topic: 'loops', difficulty: 'medium', desc: 'Максимум без Math.max' },
+            { num: 23, topic: 'loops', difficulty: 'medium', desc: 'Уникальные элементы без Set' },
+            { num: 24, topic: 'loops', difficulty: 'medium', desc: 'range(start, end, step)' },
+            { num: 25, topic: 'loops', difficulty: 'medium', desc: 'Проверка палиндрома "121"' },
+            { num: 26, topic: 'loops', difficulty: 'medium', desc: 'flatten([[1,2],[3,4]])' },
+            { num: 27, topic: 'loops', difficulty: 'medium', desc: 'Метки и break outerLoop' },
+            { num: 28, topic: 'loops', difficulty: 'medium', desc: 'Binary search' },
+            { num: 29, topic: 'loops', difficulty: 'medium', desc: 'countOccurrences(arr, val)' },
+            { num: 30, topic: 'loops', difficulty: 'medium', desc: 'Общие символы в двух строках' },
+            { num: 31, topic: 'loops', difficulty: 'medium', desc: 'zip([a,b], [1,2]) → [[a,1],[b,2]]' },
+            { num: 32, topic: 'loops', difficulty: 'medium', desc: 'Треугольник из звёздочек' },
+            { num: 33, topic: 'loops', difficulty: 'hard', desc: 'Bubble sort' },
+            { num: 34, topic: 'loops', difficulty: 'hard', desc: 'Insertion sort' },
+            { num: 35, topic: 'loops', difficulty: 'hard', desc: 'fibonacci(n)' },
+            { num: 36, topic: 'loops', difficulty: 'hard', desc: 'flatten(arr, depth)' },
+            { num: 37, topic: 'loops', difficulty: 'hard', desc: 'Простые числа до N' },
+            { num: 38, topic: 'loops', difficulty: 'hard', desc: 'chunk(arr, size)' },
+            { num: 39, topic: 'loops', difficulty: 'hard', desc: 'BFS обход дерева' },
+            { num: 40, topic: 'loops', difficulty: 'hard', desc: 'groupBy(arr, fn)' },
+            { num: 41, topic: 'loops', difficulty: 'hard', desc: 'permutations(arr)' },
+            { num: 42, topic: 'loops', difficulty: 'hard', desc: 'Generator function fib()' },
+            { num: 43, topic: 'loops', difficulty: 'hard', desc: 'Самая длинная подстрока без повторов' },
+            { num: 44, topic: 'loops', difficulty: 'hard', desc: 'Умножение матриц' },
+            { num: 45, topic: 'loops', difficulty: 'hard', desc: 'throttle(fn, delay)' },
+            { num: 46, topic: 'loops', difficulty: 'hard', desc: 'takeWhile/dropWhile' },
+            { num: 47, topic: 'loops', difficulty: 'hard', desc: 'DFS с итерацией' },
+            { num: 48, topic: 'loops', difficulty: 'hard', desc: 'slidingWindowMax(arr, k)' },
+            { num: 49, topic: 'loops', difficulty: 'hard', desc: 'Two Sum с Map' },
+            { num: 50, topic: 'loops', difficulty: 'hard', desc: 'TCO факториал' },
+            // SWITCH (51-100)
+            { num: 51, topic: 'switch', difficulty: 'easy', desc: 'switch для дней недели 1-7' },
+            { num: 52, topic: 'switch', difficulty: 'easy', desc: 'Fallthrough в switch' },
+            { num: 53, topic: 'switch', difficulty: 'easy', desc: 'default в switch' },
+            { num: 54, topic: 'switch', difficulty: 'easy', desc: 'Оценки A,B,C в switch' },
+            { num: 55, topic: 'switch', difficulty: 'easy', desc: 'Множественные case' },
+            { num: 56, topic: 'switch', difficulty: 'easy', desc: 'switch для команд start/stop/pause' },
+            { num: 57, topic: 'switch', difficulty: 'easy', desc: 'switch vs if-else' },
+            { num: 58, topic: 'switch', difficulty: 'easy', desc: 'switch для времени суток' },
+            { num: 59, topic: 'switch', difficulty: 'easy', desc: 'return vs break в switch' },
+            { num: 60, topic: 'switch', difficulty: 'easy', desc: 'switch для фигур' },
+            { num: 61, topic: 'switch', difficulty: 'easy', desc: 'undefined в switch' },
+            { num: 62, topic: 'switch', difficulty: 'easy', desc: 'switch для HTTP-статусов' },
+            { num: 63, topic: 'switch', difficulty: 'easy', desc: 'switch для факториала' },
+            { num: 64, topic: 'switch', difficulty: 'easy', desc: 'switch-калькулятор' },
+            { num: 65, topic: 'switch', difficulty: 'easy', desc: 'Вложенный switch' },
+            { num: 66, topic: 'switch', difficulty: 'easy', desc: 'switch для клавиш' },
+            { num: 67, topic: 'switch', difficulty: 'medium', desc: 'if-else → switch(true)' },
+            { num: 68, topic: 'switch', difficulty: 'medium', desc: 'switch-based REPL' },
+            { num: 69, topic: 'switch', difficulty: 'medium', desc: 'Object lookup vs switch' },
+            { num: 70, topic: 'switch', difficulty: 'medium', desc: 'Светофор на switch' },
+            { num: 71, topic: 'switch', difficulty: 'medium', desc: 'switch для токенов' },
+            { num: 72, topic: 'switch', difficulty: 'medium', desc: 'switch для роутинга' },
+            { num: 73, topic: 'switch', difficulty: 'medium', desc: 'switch(true) для диапазонов' },
+            { num: 74, topic: 'switch', difficulty: 'medium', desc: 'Intentional fallthrough' },
+            { num: 75, topic: 'switch', difficulty: 'medium', desc: 'switch для порядковых числительных' },
+            { num: 76, topic: 'switch', difficulty: 'medium', desc: 'switch для нот' },
+            { num: 77, topic: 'switch', difficulty: 'medium', desc: 'Пустые case' },
+            { num: 78, topic: 'switch', difficulty: 'medium', desc: 'switch для DOM-событий' },
+            { num: 79, topic: 'switch', difficulty: 'medium', desc: 'getAnimalSound(animal)' },
+            { num: 80, topic: 'switch', difficulty: 'medium', desc: 'switch для знаков зодиака' },
+            { num: 81, topic: 'switch', difficulty: 'medium', desc: 'Возврат значения из switch' },
+            { num: 82, topic: 'switch', difficulty: 'medium', desc: 'Exhaustive switch' },
+            { num: 83, topic: 'switch', difficulty: 'hard', desc: 'State Machine на switch' },
+            { num: 84, topic: 'switch', difficulty: 'hard', desc: 'Производительность switch vs if-else' },
+            { num: 85, topic: 'switch', difficulty: 'hard', desc: 'RPN калькулятор' },
+            { num: 86, topic: 'switch', difficulty: 'hard', desc: 'Event bus на switch' },
+            { num: 87, topic: 'switch', difficulty: 'hard', desc: 'AST интерпретатор' },
+            { num: 88, topic: 'switch', difficulty: 'hard', desc: 'Symbol в switch' },
+            { num: 89, topic: 'switch', difficulty: 'hard', desc: 'Command pattern на switch' },
+            { num: 90, topic: 'switch', difficulty: 'hard', desc: 'Middleware dispatcher' },
+            { num: 91, topic: 'switch', difficulty: 'hard', desc: 'Tagged Union на switch' },
+            { num: 92, topic: 'switch', difficulty: 'hard', desc: 'Turing machine' },
+            { num: 93, topic: 'switch', difficulty: 'hard', desc: 'Токенизация с switch' },
+            { num: 94, topic: 'switch', difficulty: 'hard', desc: 'Visitor pattern' },
+            { num: 95, topic: 'switch', difficulty: 'hard', desc: 'Type-safe switch' },
+            { num: 96, topic: 'switch', difficulty: 'hard', desc: 'JSON парсер' },
+            { num: 97, topic: 'switch', difficulty: 'hard', desc: 'Redux reducer' },
+            { num: 98, topic: 'switch', difficulty: 'hard', desc: 'Fall-through анализ' },
+            { num: 99, topic: 'switch', difficulty: 'hard', desc: 'Plugin registry' },
+            { num: 100, topic: 'switch', difficulty: 'hard', desc: 'Виртуальная машина с байткодом' }
+        ];
+
+        const select = document.getElementById('taskSelect');
+        tasks.forEach(task => {
+            const option = document.createElement('option');
+            option.value = task.num;
+            option.textContent = `#${task.num} - ${task.desc}`;
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', updateTaskInfo);
+        updateTaskInfo();
+
+        function updateTaskInfo() {
+            const taskNum = parseInt(select.value);
+            const task = tasks.find(t => t.num === taskNum);
+            if (task) {
+                document.getElementById('taskInfo').innerHTML = `
+                    <h3>Задание #${task.num} <span class="badge ${task.topic}">${task.topic}</span> <span class="badge ${task.difficulty}">${task.difficulty}</span></h3>
+                    <p>${task.desc}</p>
+                `;
+            }
+        }
+
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleDiv = document.getElementById('console');
+
+        function addToConsole(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = typeof message === 'object' ? JSON.stringify(message, null, 2) : String(message);
+            consoleDiv.appendChild(line);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            args.forEach(arg => addToConsole(arg, 'success'));
+            originalLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            args.forEach(arg => addToConsole(arg, 'error'));
+            originalError.apply(console, args);
+        };
+
+        function clearConsole() {
+            consoleDiv.innerHTML = '<div class="console-line info">Консоль очищена.</div>';
+        }
+
+        let currentScript = null;
+
+        function runTask() {
+            const taskNum = select.value;
+            addToConsole(`\nЗапуск задания #${taskNum}...`, 'info');
+            
+            if (currentScript) {
+                currentScript.remove();
+            }
+
+            currentScript = document.createElement('script');
+            currentScript.src = `js/task${taskNum}.js`;
+            currentScript.onerror = () => {
+                addToConsole(`Файл task${taskNum}.js не найден`, 'error');
+            };
+            document.body.appendChild(currentScript);
+        }
+    </script>
+</body>
+</html>
